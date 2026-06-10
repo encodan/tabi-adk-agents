@@ -13,6 +13,7 @@ This repo is the **optimization layer** that took TABI from sandbox to productio
 No GCP credentials or proprietary data required — the agent and eval code run against a deterministic mock semantic layer:
 
 ```bash
+# Requires Python 3.12+
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 pytest                                         # 57 passed, 5 skipped
