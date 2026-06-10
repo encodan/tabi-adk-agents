@@ -1,0 +1,42 @@
+# Mock-mode counterpart of baseline.yaml (deterministic synthetic data). The
+# runtime reads only `calibration.passed`; the rest is illustrative.
+golden_set_sha: 102d9adeae7484cb
+tool_mode: mocked
+metrics:
+  B_route: 0.7703
+  B_factuality: 0.9444
+  B_trajectory: 0.7333
+  B_safety: 0.7931
+  B_query_plan: 1.0
+  B_multi_turn: 0.4
+  # Populated by --update-baseline once judge hold-out alignment is reached;
+  # provisional until `judge.alignment.passed` flips.
+  B_judge_pass_rate: null
+latency:
+  p50_ms: 3380
+  p95_ms: 17426
+cost: {}
+calibration:
+  passed: false
+  reason: 'confidence not emitted at capture time'
+  bins: []
+judge:
+  enabled: true
+  # Kept in sync with the CI workflow env so the model-mismatch soft warning
+  # doesn't fire on first invocation.
+  model: gemini-3-flash-preview
+  prompt_version: v1
+  few_shot_count: 4
+  alignment:
+    passed: false
+    pass_class:
+      misclassified: null
+      total: null
+    fail_class:
+      misclassified: null
+      total: null
+    aligned_at: null
+    expert_id: null
+  cost:
+    nightly_ceiling_usd: 2.50
+    pr_spotcheck_ceiling_usd: 0.30

@@ -1,0 +1,39 @@
+{
+  "eval_set_id": "goal_attainment_grounding",
+  "name": "goal_attainment_grounding",
+  "description": "Regression gate for a prose-grounding incident: capacity_planner retrieved the tenant's configured planning context (target 900, 20 hires/recruiter/month, 4 recruiters) but its PROSE substituted a generic '2-4 hires/recruiter/month' industry benchmark and asked the user for values it already had, while claims-synthesis masked the miss as a verifier 'match'. The case is scored on final_response_match_v2 (the prose-grounding signal). PRECONDITIONS for a meaningful run: (1) PROMPT_VERSION=v3.1 \u2014 only the v3.1 capacity_planner prompt carries the get_planning_context surface (the code default v3 does not), and production ships v3.1; analytics-eval.yml pins it. (2) the eval tenant (TABI_EVAL_TENANT_ID=<DEMO_TENANT_ID>, the demo tenant) already has the planning config in entitlements, so no seeding is needed. toolUses is intentionally EMPTY: compute_goal_attainment mints a random context_token, so its args can never be pinned for the blocking tool_trajectory_avg_score (threshold 1.0, IN_ORDER) \u2014 an empty expected trajectory matches trivially and lets the response-grounding judge do the real work.",
+  "eval_cases": [
+    {
+      "evalId": "goal-attainment-capacity-adequacy-001",
+      "conversation": [
+        {
+          "invocationId": "goal-attainment-capacity-adequacy-001-t1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Are we on track to hit our engineering hiring target this year, and do we have enough recruiters?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "Grounds the capacity analysis in the tenant's CONFIGURED planning values rather than a generic industry benchmark. States the configured annual engineering hiring target (900) and derives the team's monthly hiring capacity from the configured 4 recruiters and 20 hires/recruiter/month (about 80 hires/month). Concludes whether the current 4 recruiters are sufficient by comparing that ~80/month configured capacity against the run-rate required to reach the target. MUST NOT ask the user to supply the hiring target or the recruiter capacity/headcount (all are configured and were retrieved). MUST NOT substitute a generic '2-4 hires per recruiter per month' industry benchmark for the configured capacity, and MUST NOT conclude the team needs roughly 24 recruiters or that headcount must be increased to around 24."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0
+    }
+  ],
+  "creation_timestamp": 0.0
+}

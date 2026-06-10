@@ -1,0 +1,194 @@
+{
+  "eval_set_id": "compound_multi_agent",
+  "name": "compound_multi_agent",
+  "description": "Canonical compound-orchestration eval input \u2014 the only compound/multi-specialist regression coverage we have. Each case is a question routed to TWO specialists, exercising the hand-rolled `_execute_streaming_early` fan-out in `MultiAgentOrchestrator` (a deliberate, permanent design choice). Originally written as the A/B artifact for a `ParallelAgent` pilot; the pilot REVERTED on factuality regression, but the evalset and its goldens survive as standalone regression coverage. Questions ported from tests/golden_data/multi_agent.yaml (the data_scientist pairs are intentionally excluded \u2014 data_scientist always takes the LLM query path, which adds latency variance unrelated to compound fan-out). `finalResponse` is a SEMANTIC reference for the temperature-0 judge \u2014 it describes what a correct SYNTHESIZED compound answer must cover (both specialist lenses, grounded in queried metrics), not pinned numbers. `toolUses` is deliberately EMPTY for every case: a compound turn fans tool calls across two specialists with no deterministic ordering, so an IN_ORDER tool_trajectory reference cannot be pinned the way specialist_core's single-specialist cases are. GOLDENS REVIEWED 2026-05-23 against a live `TABI_EVAL_DUMP_DETAIL=1` run: the finalResponse references are the regression baseline. The two `final_response_match_v2` misses observed \u2014 `compound-capacity-sourcing-001` (sourcing-only response missing the capacity lens) and `compound-pipeline-capacity-001` (process narration without findings) \u2014 are orchestration weaknesses the eval correctly flagged, not golden defects.",
+  "eval_cases": [
+    {
+      "evalId": "compound-pipeline-capacity-001",
+      "conversation": [
+        {
+          "invocationId": "compound-pipeline-capacity-001-t1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "What are our bottlenecks and will we still hit our hiring goals?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "Synthesizes a pipeline-bottleneck diagnosis (the stage(s) with the largest conversion drop-off or longest time-in-stage) WITH a capacity/goal-attainment read (whether the current pace and capacity put the hiring target within reach), grounded in queried metrics. Connects the two: explains how the identified bottleneck bears on hitting the goal, without inventing stages, figures, or a target the tenant did not configure."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0
+    },
+    {
+      "evalId": "compound-sourcing-offer-001",
+      "conversation": [
+        {
+          "invocationId": "compound-sourcing-offer-001-t1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Which sourcing channels produce candidates that accept offers?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "Synthesizes a sourcing-channel view (which channels supply the most candidates / highest-quality pipeline) WITH an offer-outcome view (offer-acceptance rate by channel), grounded in queried metrics. Names the channel(s) whose candidates both convert through the funnel and accept offers, without inventing channels or acceptance figures."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0
+    },
+    {
+      "evalId": "compound-interview-pipeline-001",
+      "conversation": [
+        {
+          "invocationId": "compound-interview-pipeline-001-t1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Are slow interviews causing delays in our overall pipeline?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "Synthesizes an interviewing-stage read (time-in-stage / scheduling lag at interview stages) WITH an overall-pipeline read (total time-to-hire and where it concentrates), grounded in queried metrics. States whether the interview stage is a material contributor to overall delay relative to other stages, rather than asserting causation without the stage-level evidence."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0
+    },
+    {
+      "evalId": "compound-offer-capacity-001",
+      "conversation": [
+        {
+          "invocationId": "compound-offer-capacity-001-t1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "How does our offer decline rate impact our ability to hit targets?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "Synthesizes an offer-outcome read (offer decline / acceptance rate) WITH a capacity/goal-attainment read (whether hires are on pace for the configured target), grounded in queried metrics. Quantifies how declined offers erode effective hiring throughput and what that means for the target, without inventing a decline rate or a target the tenant did not configure."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0
+    },
+    {
+      "evalId": "compound-capacity-sourcing-001",
+      "conversation": [
+        {
+          "invocationId": "compound-capacity-sourcing-001-t1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "We're behind on hiring goals \u2014 which sources should we ramp up?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "Synthesizes a capacity/goal-attainment read (the size of the gap to the configured target) WITH a sourcing read (which channels have the throughput and quality headroom to close it), grounded in queried metrics. Recommends specific channel(s) to ramp tied to the gap, without inventing channel figures or a target the tenant did not configure."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0
+    },
+    {
+      "evalId": "compound-pipeline-offer-001",
+      "conversation": [
+        {
+          "invocationId": "compound-pipeline-offer-001-t1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Where are candidates dropping off and how are offers performing?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "Synthesizes a pipeline drop-off read (the stage(s) with the largest conversion loss) WITH an offer-performance read (offer-acceptance / decline rate), grounded in queried metrics. Keeps the two findings distinct and clearly attributed, without conflating mid-funnel drop-off with offer-stage decline or inventing stages or figures."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0
+    }
+  ],
+  "creation_timestamp": 0.0
+}

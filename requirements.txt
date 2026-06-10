@@ -1,0 +1,16 @@
+# TABI · ADK Recruitment Agents — public showcase dependencies.
+# The proprietary data layer (MetricFlow / BigQuery / ingestion) is NOT included;
+# tools resolve through a mock semantic layer, so these are the only runtime deps.
+
+google-adk>=2.1.0          # Agent Development Kit (Agents, Runner, App, plugins, LocalEvalService)
+google-genai>=1.55.0       # Gemini on Vertex AI
+httpx>=0.27.0              # used directly by tools/distribution_query_tool.py
+                           # (also a google-genai transitive dep; declared because we import it)
+structlog>=24.1.0          # structured logging
+pydantic>=2.6.0            # request/response + planning models
+python-dotenv>=1.0.0       # .env loading in config
+PyYAML>=6.0                # eval baselines / config
+
+# Dev / test
+pytest>=8.0.0
+pytest-asyncio>=0.23.0

@@ -1,0 +1,346 @@
+# Golden dataset: Factuality (number accuracy) examples
+# Tests that agent responses contain correct numbers from query results.
+
+- id: fact-hire-rate-001
+  category: factuality
+  difficulty: medium
+  question: "What's our current hire rate?"
+  expected_agent: general_analyst
+  expected_metrics: [hire_rate]
+  mock_query_results:
+    - metric: hire_rate
+      value: 12.3
+      dimensions: {}
+  expected_numbers:
+    hire_rate: 12.3
+  must_contain: ["12.3%"]
+
+- id: fact-stage-duration-001
+  category: factuality
+  difficulty: medium
+  question: "How long does the technical interview stage take?"
+  expected_agent: pipeline_analyst
+  expected_metrics: [avg_days_in_stage]
+  mock_query_results:
+    - metric: avg_days_in_stage
+      value: 8.5
+      dimensions:
+        stage_name: "Technical Interview"
+  expected_numbers:
+    avg_days_in_stage: 8.5
+  must_contain: ["8.5"]
+
+- id: fact-total-applications-001
+  category: factuality
+  difficulty: easy
+  question: "How many total applications do we have?"
+  expected_agent: general_analyst
+  expected_metrics: [total_applications]
+  mock_query_results:
+    - metric: total_applications
+      value: 1542
+      dimensions: {}
+  expected_numbers:
+    total_applications: 1542
+  must_contain: ["1,542"]
+
+- id: fact-offer-acceptance-001
+  category: factuality
+  difficulty: medium
+  question: "What's our offer acceptance rate?"
+  expected_agent: offer_advisor
+  expected_metrics: [offer_acceptance_rate]
+  mock_query_results:
+    - metric: offer_acceptance_rate
+      value: 78.5
+      dimensions: {}
+  expected_numbers:
+    offer_acceptance_rate: 78.5
+  must_contain: ["78.5%"]
+
+- id: fact-time-to-fill-001
+  category: factuality
+  difficulty: medium
+  question: "What's our average time to fill?"
+  expected_agent: general_analyst
+  expected_metrics: [time_to_hire]
+  mock_query_results:
+    - metric: time_to_hire
+      value: 34.2
+      dimensions: {}
+  expected_numbers:
+    time_to_hire: 34.2
+  must_contain: ["34.2"]
+
+- id: fact-hires-by-dept-001
+  category: factuality
+  difficulty: medium
+  question: "How many hires per department?"
+  expected_agent: general_analyst
+  expected_metrics: [hired_count]
+  mock_query_results:
+    - metric: hired_count
+      value: 45
+      dimensions:
+        department: "Engineering"
+    - metric: hired_count
+      value: 23
+      dimensions:
+        department: "Sales"
+    - metric: hired_count
+      value: 12
+      dimensions:
+        department: "Marketing"
+  expected_numbers:
+    hired_count_engineering: 45
+    hired_count_sales: 23
+    hired_count_marketing: 12
+  must_contain: ["45", "23", "12"]
+
+- id: fact-source-performance-001
+  category: factuality
+  difficulty: medium
+  question: "How do our sourcing channels compare?"
+  expected_agent: sourcing_strategist
+  # applications_by_source alias retired — answer
+  # via total_applications grouped by application__source_name.
+  expected_metrics: [total_applications]
+  mock_query_results:
+    - metric: total_applications
+      value: 620
+      dimensions:
+        application__source_name: "LinkedIn"
+    - metric: total_applications
+      value: 340
+      dimensions:
+        application__source_name: "Referral"
+    - metric: total_applications
+      value: 180
+      dimensions:
+        application__source_name: "Indeed"
+  expected_numbers:
+    applications_linkedin: 620
+    applications_referral: 340
+    applications_indeed: 180
+  must_contain: ["620", "340", "180"]
+
+- id: fact-pipeline-velocity-001
+  category: factuality
+  difficulty: medium
+  question: "How many hires are we making per month?"
+  expected_agent: capacity_planner
+  expected_metrics: [hired_count]
+  # `capacity_planner/velocity` deterministic plan emits 3 queries
+  # (hired_count, total_applications, time_to_hire). Provide rows for all
+  # three so the agent doesn't hallucinate when 2 of 3 queries return
+  # empty — see the capacity_planner velocity query plan.
+  mock_query_results:
+    - metric: hired_count
+      value: 15.7
+      dimensions: {}
+    - metric: total_applications
+      value: 250
+      dimensions: {}
+    - metric: time_to_hire
+      value: 28.5
+      dimensions: {}
+  expected_numbers:
+    hired_count: 15.7
+  must_contain: ["15.7"]
+
+- id: fact-rejection-rate-001
+  category: factuality
+  difficulty: medium
+  question: "What percentage of candidates are we rejecting?"
+  expected_agent: general_analyst
+  expected_metrics: [rejection_rate]
+  mock_query_results:
+    - metric: rejection_rate
+      value: 67.8
+      dimensions: {}
+  expected_numbers:
+    rejection_rate: 67.8
+  must_contain: ["67.8%"]
+
+- id: fact-pipeline-conversion-001
+  category: factuality
+  difficulty: hard
+  question: "What's the conversion rate from application to hire?"
+  expected_agent: pipeline_analyst
+  expected_metrics: [hire_rate]
+  mock_query_results:
+    - metric: hire_rate
+      value: 3.2
+      dimensions: {}
+  expected_numbers:
+    hire_rate: 3.2
+  must_contain: ["3.2%"]
+
+- id: fact-offers-extended-001
+  category: factuality
+  difficulty: easy
+  question: "How many offers did we extend this month?"
+  expected_agent: offer_advisor
+  expected_metrics: [total_offers]
+  mock_query_results:
+    - metric: total_offers
+      value: 28
+      dimensions: {}
+  expected_numbers:
+    total_offers: 28
+  must_contain: ["28"]
+
+- id: fact-stage-dropoff-001
+  category: factuality
+  difficulty: hard
+  # stage_dropout_rate was retired — it
+  # bundled stalled (still active) with rejected (terminal exit). For "where
+  # are we losing candidates", stage_rejection_rate is the defensible
+  # terminal-exit signal per stage.
+  question: "Where are we losing the most candidates?"
+  expected_agent: pipeline_analyst
+  # "Losing candidates" = terminal exit (rejected) + aged-out (stalled).
+  # stage_dropout_rate used to bundle both — but it conflated the two
+  # signals. Now they're distinct: rejection = explicit no, stall = silent
+  # ghosting. Both belong in this answer.
+  expected_metrics: [stage_rejection_rate, stage_stall_rate]
+  mock_query_results:
+    - metric: stage_rejection_rate
+      value: 28.5
+      dimensions:
+        stage_name: "Phone Screen"
+    - metric: stage_rejection_rate
+      value: 22.1
+      dimensions:
+        stage_name: "Technical Interview"
+    - metric: stage_rejection_rate
+      value: 5.5
+      dimensions:
+        stage_name: "Onsite"
+    - metric: stage_stall_rate
+      value: 16.7
+      dimensions:
+        stage_name: "Phone Screen"
+    - metric: stage_stall_rate
+      value: 10.0
+      dimensions:
+        stage_name: "Technical Interview"
+    - metric: stage_stall_rate
+      value: 3.0
+      dimensions:
+        stage_name: "Onsite"
+  expected_numbers:
+    rejection_phone_screen: 28.5
+    rejection_technical: 22.1
+    rejection_onsite: 5.5
+    stall_phone_screen: 16.7
+    stall_technical: 10.0
+    stall_onsite: 3.0
+  must_contain: ["28.5", "16.7"]
+
+- id: fact-referral-hire-rate-001
+  category: factuality
+  difficulty: medium
+  question: "What's the hire rate for referral candidates?"
+  expected_agent: sourcing_strategist
+  # source_hire_rate alias retired — use hire_rate
+  # grouped by application__source_name.
+  expected_metrics: [hire_rate]
+  mock_query_results:
+    - metric: hire_rate
+      value: 22.5
+      dimensions:
+        application__source_name: "Referral"
+  expected_numbers:
+    hire_rate_referral: 22.5
+  must_contain: ["22.5%"]
+
+- id: fact-active-candidates-001
+  category: factuality
+  difficulty: easy
+  question: "How many active candidates do we have in the pipeline?"
+  expected_agent: general_analyst
+  expected_metrics: [active_applications]
+  mock_query_results:
+    - metric: active_applications
+      value: 387
+      dimensions: {}
+  expected_numbers:
+    active_applications: 387
+  must_contain: ["387"]
+
+- id: fact-time-to-offer-001
+  category: factuality
+  difficulty: medium
+  question: "How long from first interview to offer?"
+  expected_agent: offer_advisor
+  expected_metrics: [avg_time_to_offer_decision]
+  mock_query_results:
+    - metric: avg_time_to_offer_decision
+      value: 14.8
+      dimensions: {}
+  expected_numbers:
+    avg_time_to_offer_decision: 14.8
+  must_contain: ["14.8"]
+
+- id: fact-dept-time-to-fill-001
+  category: factuality
+  difficulty: hard
+  question: "Which department takes longest to fill roles?"
+  expected_agent: general_analyst
+  expected_metrics: [time_to_hire]
+  mock_query_results:
+    - metric: time_to_hire
+      value: 52.3
+      dimensions:
+        department: "Engineering"
+    - metric: time_to_hire
+      value: 28.1
+      dimensions:
+        department: "Sales"
+    - metric: time_to_hire
+      value: 35.7
+      dimensions:
+        department: "Marketing"
+  expected_numbers:
+    ttf_engineering: 52.3
+    ttf_sales: 28.1
+    ttf_marketing: 35.7
+  must_contain: ["52.3", "28.1"]
+
+- id: fact-quarterly-hires-001
+  category: factuality
+  difficulty: medium
+  question: "How many people did we hire last quarter?"
+  expected_agent: general_analyst
+  expected_metrics: [hired_count]
+  mock_query_results:
+    - metric: hired_count
+      value: 47
+      dimensions: {}
+  expected_numbers:
+    hired_count: 47
+  must_contain: ["47"]
+
+- id: fact-offer-pending-001
+  category: factuality
+  difficulty: easy
+  question: "How many offers are currently pending?"
+  expected_agent: offer_advisor
+  # Class B widening: the planner can answer this with
+  # either the dedicated `pending_offers` derived metric or `total_offers`
+  # filtered by offer stage — both defensibly correct. Either set passes.
+  acceptable_metric_sets:
+    - [pending_offers]
+    - [total_offers]
+  mock_query_results:
+    - metric: pending_offers
+      value: 9
+      dimensions: {}
+    - metric: total_offers
+      value: 9
+      dimensions: {offer_status: "Created"}
+  expected_numbers:
+    pending_offers: 9
+    total_offers: 9
+  must_contain: ["9"]

@@ -1,0 +1,63 @@
+## Compliance Guardrails
+
+When discussing hiring practices, metrics, or recommendations, observe these rules to ensure legal compliance and ethical hiring.
+
+### EEOC (Equal Employment Opportunity)
+
+**Protected Classes:** Race, color, religion, sex (including gender identity, sexual orientation, pregnancy), national origin, age (40+), disability, genetic information.
+
+**DO NOT:**
+- Recommend selection criteria based on protected characteristics
+- Suggest questions about: family status, marital status, pregnancy plans, religion, national origin, age, disability, health conditions
+- Recommend quotas or automatic preferences for any demographic group
+- Use language that implies preference for "young" candidates, "cultural fit" as code for demographics, or similar
+
+**DO:**
+- Focus recommendations on job-related qualifications and experience
+- Suggest structured interviews with standardized questions
+- Recommend evaluation criteria based on predefined job requirements
+- When discussing diversity, focus on:
+  - Expanding sourcing channels to reach underrepresented groups
+  - Removing bias from job descriptions (gender-neutral language)
+  - Standardizing evaluation processes
+  - Training interviewers on unconscious bias
+
+### Data Privacy (GDPR/CCPA)
+
+**DO NOT:**
+- Recommend storing candidate PII beyond necessary retention periods
+- Suggest collecting unnecessary personal information
+
+**DO:**
+- Remind users about data minimization principles
+- Note that salary history questions are banned in many US states/cities
+- Suggest consent-based data collection practices
+
+### When Analyzing Diversity Metrics
+
+**Safe approaches:**
+- Analyze pipeline demographics to identify where diverse candidates drop off
+- Compare sourcing channel effectiveness for diverse pipelines
+- Identify potential bias in stage conversion rates
+- Recommend process improvements (structured interviews, diverse panels)
+
+**Avoid:**
+- Setting hiring quotas
+- Recommending preferential treatment in final selection
+- Suggesting demographic-based shortcuts in screening
+
+### Interview Process Recommendations
+
+**Prohibited questions to warn about:**
+- "Do you plan to have children?"
+- "What country are you from originally?"
+- "How old are you?" / "When did you graduate?"
+- "Do you have any health conditions?"
+- "What is your religion?"
+- "Are you married?"
+
+**Instead recommend:**
+- "Are you authorized to work in [country]?"
+- Focus on job requirements and candidate capabilities
+- Use behavioral questions about past performance
+- Standardize questions across all candidates

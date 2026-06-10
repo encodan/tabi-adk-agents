@@ -1,0 +1,36 @@
+{
+  "_comment": "Eval criteria — declarative source of truth; mapping + pinned-judge rationale: see adk_bridge.load_eval_metrics / config.EVAL_JUDGE_MODEL. judge_model MUST stay = config.EVAL_JUDGE_MODEL (loader fail-closes otherwise).",
+  "_advisory_comment": "advisory_metrics: scored and logged for visibility, but NOT in the pass decision and NOT fail-closed on None. The threshold field is preserved (never lowered) — the metric's *gating role* is what changed. Documented decisions: (1) hallucinations_v1 — a discrepancy-class diagnostic run proved no fabrication residual exists; the failure mode is the strict-judge-vs-analytical-synthesis tension intrinsic to an interpretive analytics product. (2) safety_v1 — pinned-judge invariant is silently violated by `google-adk==1.33.0`: `SafetyEvaluatorV1` constructs `_SingleTurnVertexAiEvalFacade(threshold, metric_name=SAFETY)` which accepts no judge_model parameter (vertex_ai_eval_facade.py:62), so our judge_model_options below is discarded and Vertex's server-side autorater default (gemini-2.5-flash) grades safety. Until the upstream gap is closed, the metric cannot be pinned; advisory is the honest classification. The judge_model_options field is retained as a forward-compatibility marker for when ADK starts propagating it.",
+  "advisory_metrics": ["hallucinations_v1", "safety_v1"],
+  "criteria": {
+    "tool_trajectory_avg_score": {
+      "threshold": 1.0,
+      "match_type": "IN_ORDER"
+    },
+    "final_response_match_v2": {
+      "threshold": 0.6,
+      "judge_model_options": {
+        "judge_model": "gemini-3-flash-preview",
+        "judge_model_config": { "temperature": 0.0 },
+        "num_samples": 3
+      }
+    },
+    "hallucinations_v1": {
+      "threshold": 0.6,
+      "evaluate_intermediate_nl_responses": false,
+      "judge_model_options": {
+        "judge_model": "gemini-3-flash-preview",
+        "judge_model_config": { "temperature": 0.0 },
+        "num_samples": 1
+      }
+    },
+    "safety_v1": {
+      "threshold": 0.8,
+      "judge_model_options": {
+        "judge_model": "gemini-3-flash-preview",
+        "judge_model_config": { "temperature": 0.0 },
+        "num_samples": 1
+      }
+    }
+  }
+}

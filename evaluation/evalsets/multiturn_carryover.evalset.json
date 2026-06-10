@@ -1,0 +1,224 @@
+{
+  "eval_set_id": "multiturn_carryover",
+  "name": "multiturn_carryover",
+  "description": "Multi-turn entity-carryover coverage (eval spec \u00a71.2.3) \u2014 the router path string-match eval cannot cover (RouteResult.inherited_fields + query_plan_augmentation entity carryover). Authored as a SCRIPTED 2-invocation conversation rather than ADK's generative `conversationScenario`: the generative User-Simulation form requires ADK to drive inference via its own runner, which the pinned wheel cannot point at our router/AgentSession pipeline (same root cause as \u00a71.1.1). A deterministic scripted carryover sequence preserves the load-bearing regression-detection intent of \u00a71.4 \u2014 turn 2 carries no explicit department, so if carryover regresses the turn-2 answer broadens off-Engineering and final_response_match_v2 / hallucinations_v1 fail (prove by temporarily breaking carryover). The encoded conversation plan is retained in `description` for when an ADK wheel exposes an injectable inference seam. NOTE (Issue 2): ADK tool_trajectory IN_ORDER compares name AND args (trajectory_evaluator.py; no name-only mode), so `toolUses[].args` are pinned to the REAL deterministic-query-plan args (query_multiple_recruitment_metrics `queries`), captured via TABI_EVAL_DUMP_DETAIL. These mirror query_plans.py and are stable for a fixed question+tenant \u2014 if the deterministic plan changes, REGENERATE these args from a fresh dump; do NOT blank them to {} (that silently forces tool_trajectory_avg_score=0).",
+  "eval_cases": [
+    {
+      "evalId": "mt-drill-bottleneck-dept-001",
+      "conversation": [
+        {
+          "invocationId": "mt-drill-bottleneck-dept-001-t1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Where are our pipeline bottlenecks?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "Company-wide bottleneck analysis: names the worst hiring stage(s) across departments, grounded in the queried pipeline metrics."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "name": "query_multiple_recruitment_metrics",
+                "args": {
+                  "queries": [
+                    {
+                      "metrics": [
+                        "avg_days_in_stage"
+                      ],
+                      "group_by": [
+                        "stage_transition__stage_name",
+                        "stage_transition__canonical_stage_order"
+                      ]
+                    },
+                    {
+                      "metrics": [
+                        "avg_days_in_stage"
+                      ],
+                      "group_by": [
+                        "stage_transition__stage_name",
+                        "stage_transition__canonical_stage_order"
+                      ],
+                      "time_granularity": "month"
+                    },
+                    {
+                      "metrics": [
+                        "time_to_hire",
+                        "avg_days_in_pipeline"
+                      ]
+                    },
+                    {
+                      "metrics": [
+                        "active_applications",
+                        "total_applications",
+                        "hired_count"
+                      ]
+                    },
+                    {
+                      "metrics": [
+                        "time_to_hire"
+                      ],
+                      "group_by": [
+                        "job__department_name"
+                      ]
+                    },
+                    {
+                      "metrics": [
+                        "stage_pass_through_rate",
+                        "stage_rejection_rate",
+                        "stage_stall_rate"
+                      ],
+                      "group_by": [
+                        "stage_funnel__stage_name",
+                        "stage_funnel__canonical_stage_order"
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        },
+        {
+          "invocationId": "mt-drill-bottleneck-dept-001-t2",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Just in Engineering"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "Re-runs the SAME bottleneck analysis from turn 1 but scoped to the Engineering department only (entity carryover: the prior turn's bottleneck intent is inherited; the new turn only narrows the department filter). The answer is explicitly about Engineering's pipeline bottleneck and does not silently revert to a company-wide answer."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "name": "query_multiple_recruitment_metrics",
+                "args": {
+                  "queries": [
+                    {
+                      "metrics": [
+                        "avg_days_in_stage"
+                      ],
+                      "group_by": [
+                        "stage_transition__stage_name",
+                        "stage_transition__canonical_stage_order"
+                      ],
+                      "filters": [
+                        {
+                          "dimension": "application__department_name",
+                          "operator": "like",
+                          "value": "%Engineering%"
+                        }
+                      ]
+                    },
+                    {
+                      "metrics": [
+                        "avg_days_in_stage"
+                      ],
+                      "group_by": [
+                        "stage_transition__stage_name",
+                        "stage_transition__canonical_stage_order"
+                      ],
+                      "time_granularity": "month",
+                      "filters": [
+                        {
+                          "dimension": "application__department_name",
+                          "operator": "like",
+                          "value": "%Engineering%"
+                        }
+                      ]
+                    },
+                    {
+                      "metrics": [
+                        "time_to_hire",
+                        "avg_days_in_pipeline"
+                      ],
+                      "filters": [
+                        {
+                          "dimension": "application__department_name",
+                          "operator": "like",
+                          "value": "%Engineering%"
+                        }
+                      ]
+                    },
+                    {
+                      "metrics": [
+                        "active_applications",
+                        "total_applications",
+                        "hired_count"
+                      ],
+                      "filters": [
+                        {
+                          "dimension": "application__department_name",
+                          "operator": "like",
+                          "value": "%Engineering%"
+                        }
+                      ]
+                    },
+                    {
+                      "metrics": [
+                        "time_to_hire"
+                      ],
+                      "group_by": [
+                        "job__department_name"
+                      ],
+                      "filters": [
+                        {
+                          "dimension": "application__department_name",
+                          "operator": "like",
+                          "value": "%Engineering%"
+                        }
+                      ]
+                    },
+                    {
+                      "metrics": [
+                        "stage_pass_through_rate",
+                        "stage_rejection_rate",
+                        "stage_stall_rate"
+                      ],
+                      "group_by": [
+                        "stage_funnel__stage_name",
+                        "stage_funnel__canonical_stage_order"
+                      ],
+                      "filters": [
+                        {
+                          "dimension": "application__department_name",
+                          "operator": "like",
+                          "value": "%Engineering%"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0
+    }
+  ],
+  "creation_timestamp": 0.0
+}

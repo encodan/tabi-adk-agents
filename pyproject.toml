@@ -1,0 +1,24 @@
+[project]
+name = "tabi-adk-agents"
+version = "0.1.0"
+description = "Curated public showcase of TABI's ADK agent layer — Google AI Agents Challenge 2026, Track 2 (Optimize)"
+requires-python = ">=3.12"
+readme = "README.md"
+
+# This repo uses a flat package layout: the repository root is the import root,
+# so `core`, `agents`, `tools`, `config`, `models`, and `evaluation` are
+# top-level importable packages. It is deliberately NOT pip-installable (those
+# names are too generic to claim in site-packages) — install deps from
+# requirements.txt and run `pytest` from the repo root; conftest.py wires
+# sys.path. This file carries shared tool config + project metadata only.
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+    "integration: tests that require live GCP credentials (excluded by default)",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"

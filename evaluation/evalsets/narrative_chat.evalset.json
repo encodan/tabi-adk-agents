@@ -1,0 +1,163 @@
+{
+  "eval_set_id": "narrative_chat",
+  "name": "narrative_chat",
+  "creation_timestamp": 0.0,
+  "description": "Canonical chat-narrative storytelling eval input \u2014 the regression baseline for `StorytellingService.generate_story` with `story_type='narrative'`. Seeded from the 2026-05-24 owner-side dump (`an owner-side narrative dump`) produced by `an internal A/B storytelling harness --dump-only` against the demo tenant (`<DEMO_TENANT_ID>`). Each case is one of the 5 fixed narrative questions the A/B harness drives. `finalResponse` is a SEMANTIC reference for the temperature-0 judge \u2014 it describes what a correct chat-narrative answer must cover (the diagnostic lens, the named bottleneck/driver, the data-grounding guardrail), NOT pinned numbers; numbers drift across runs of the same Vertex/Gemini model even at temperature=0. `toolUses` is deliberately EMPTY for every case: the storytelling pipeline does NOT fan ADK tool calls \u2014 it queries MetricFlow directly via the planner and synthesizes the narrative in a single `generate_content` call (flag off) or a single ADK `Runner.run_async` invocation (flag on). Goldens curated by reading the dump's executive_summary + per-slide narrative + key_metrics labels for each question; the curation discipline follows an earlier curation lesson (do NOT pin specific values, only the semantic contract). Used by the expand-vs-revert verdict to score factuality on both arms of the A/B; arm A (flag off, direct `generate_content`) is the reference baseline and arm B (flag on, ADK `StorytellingAgent`) is the candidate being measured against the same references.",
+  "eval_cases": [
+    {
+      "evalId": "narrative-tth-increasing",
+      "conversation": [
+        {
+          "invocationId": "narrative-tth-increasing-t1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Why is our time-to-hire increasing?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "Diagnoses time-to-hire by checking the premise against the data (overall TTH may be trending the opposite of the question's implication) AND identifies the specific funnel stage(s) or department(s) where time has actually grown, grounded in queried stage-duration metrics. Names the bottleneck stage and gives the magnitude/direction of the change without inventing stage names, days, or causes not supported by the data. Closes with a defensible next-step focused on the named bottleneck rather than generic 'things are slow.'"
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0
+    },
+    {
+      "evalId": "narrative-quarter-overview",
+      "conversation": [
+        {
+          "invocationId": "narrative-quarter-overview-t1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "How is hiring going this quarter?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "Synthesizes a quarterly hiring picture across at least two lenses: hire/application volume trend AND at least one pipeline-velocity or stage-bottleneck observation, grounded in queried metrics. Names at least one department or function that materially drives the volume, and surfaces an outcome-quality signal (e.g. offer acceptance rate) rather than treating volume in isolation. Avoids inventing departments, headcount targets the tenant did not configure, or trend directions not supported by the data."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0
+    },
+    {
+      "evalId": "narrative-eng-behind",
+      "conversation": [
+        {
+          "invocationId": "narrative-eng-behind-t1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Why are we behind on engineering hires?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "Diagnoses engineering-hiring shortfall by identifying the specific pipeline stage(s) where the bottleneck sits (e.g. technical interview duration, application-to-screen conversion), grounded in queried metrics scoped to engineering. Explicitly rules out at least one common alternative cause (e.g. offer acceptance, application volume) when the data does not support it. Recommends a stage-targeted action; does not invent stages, durations, or external-market causes ungrounded in the data."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0
+    },
+    {
+      "evalId": "narrative-pipeline-change",
+      "conversation": [
+        {
+          "invocationId": "narrative-pipeline-change-t1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "What changed in our pipeline this month?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "Identifies the most material month-over-month change(s) in the pipeline \u2014 across stage durations, application volume, or hire counts \u2014 and names the magnitude and direction, grounded in queried metrics. Connects the change to a plausible upstream cause supported by the data (e.g. a volume surge in one department pressuring a downstream stage). Avoids inventing changes, departments, or causes; does not claim a change the data does not show."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0
+    },
+    {
+      "evalId": "narrative-where-to-focus",
+      "conversation": [
+        {
+          "invocationId": "narrative-where-to-focus-t1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Where should we focus our recruiting efforts next?"
+              }
+            ],
+            "role": "user"
+          },
+          "finalResponse": {
+            "parts": [
+              {
+                "text": "Recommends a recruiting focus area grounded in queried source/channel performance and pipeline-volume context (e.g. application-volume trend). Names specific high-yield AND low-yield sources or channels by name (not generic categories), based on their conversion or acceptance metrics. Avoids inventing channels, conversion rates, or strategic claims unsupported by the data; recommendation is tied to the named metrics rather than generic best-practice advice."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "creationTimestamp": 0.0
+    }
+  ]
+}

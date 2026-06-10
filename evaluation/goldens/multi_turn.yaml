@@ -1,0 +1,191 @@
+# Golden dataset: Multi-turn conversation sequences.
+#
+# Each example drives one AgentSession across N turns so the session's
+# context-memory path is exercised. `eval_multi_turn` checks per-turn
+# routing, filter carryover, and response-text constraints. Per spec:
+#   5 drill-down  +  3 clarification  +  4 pronominal  +  2 handoff  +  1 reset = 15
+
+# --- Drill-down: same specialist, narrower filter carries from turn 1 ---
+
+- id: mt-drill-bottleneck-dept-001
+  category: multi_turn
+  difficulty: medium
+  question: "Where are our pipeline bottlenecks?"
+  turns:
+    - question: "Where are our pipeline bottlenecks?"
+      expected_agent: pipeline_analyst
+    - question: "Just in Engineering"
+      expected_agent: pipeline_analyst
+      expected_filters:
+        - column: job__department_name
+          value: Engineering
+
+- id: mt-drill-sources-quality-001
+  category: multi_turn
+  difficulty: medium
+  question: "Which source gives us the highest quality candidates?"
+  turns:
+    - question: "Which source gives us the highest quality candidates?"
+      expected_agent: sourcing_strategist
+    - question: "Break that down by department"
+      expected_agent: sourcing_strategist
+      expected_filters: []  # carryover: source_quality sub-intent preserved
+
+- id: mt-drill-offers-accept-001
+  category: multi_turn
+  difficulty: medium
+  question: "What's our offer acceptance rate?"
+  turns:
+    - question: "What's our offer acceptance rate?"
+      expected_agent: offer_advisor
+    - question: "How does that look for Sales?"
+      expected_agent: offer_advisor
+      expected_filters:
+        - column: job__department_name
+          value: Sales
+
+- id: mt-drill-interview-duration-001
+  category: multi_turn
+  difficulty: medium
+  question: "How long is the interview process?"
+  turns:
+    - question: "How long is the interview process?"
+      expected_agent: interviewing_coach
+    - question: "And for Product roles specifically?"
+      expected_agent: interviewing_coach
+      expected_filters:
+        - column: job__department_name
+          value: Product
+
+- id: mt-drill-capacity-forecast-001
+  category: multi_turn
+  difficulty: medium
+  question: "Will we meet Q3 hiring targets?"
+  turns:
+    - question: "Will we meet Q3 hiring targets?"
+      expected_agent: capacity_planner
+    - question: "Narrow it to Engineering"
+      expected_agent: capacity_planner
+      expected_filters:
+        - column: job__department_name
+          value: Engineering
+
+# --- Clarification: coordinator -> specialist after disambiguation ---
+
+- id: mt-clarify-interview-001
+  category: multi_turn
+  difficulty: hard
+  question: "Show me interview data"
+  turns:
+    - question: "Show me interview data"
+      # First turn is ambiguous between interviewing_coach and pipeline_analyst;
+      # don't assert on it, let the classifier fall wherever it falls.
+    - question: "I meant interviewer performance, not scheduling"
+      expected_agent: interviewing_coach
+
+- id: mt-clarify-source-001
+  category: multi_turn
+  difficulty: hard
+  question: "Look into our sources"
+  turns:
+    - question: "Look into our sources"
+    - question: "Specifically, which channel gives us better hires?"
+      expected_agent: sourcing_strategist
+
+- id: mt-clarify-offer-001
+  category: multi_turn
+  difficulty: hard
+  question: "Help me with our offers"
+  turns:
+    - question: "Help me with our offers"
+    - question: "Why are candidates turning them down?"
+      expected_agent: offer_advisor
+
+# --- Pronominal / implicit reference across turns ---
+
+- id: mt-pronoun-sourcing-period-001
+  category: multi_turn
+  difficulty: medium
+  question: "How did Q1 sourcing do?"
+  turns:
+    - question: "How did Q1 sourcing do?"
+      expected_agent: sourcing_strategist
+    - question: "What about Q2?"
+      expected_agent: sourcing_strategist
+
+- id: mt-pronoun-capacity-dept-001
+  category: multi_turn
+  difficulty: medium
+  question: "How's Engineering hiring velocity?"
+  turns:
+    - question: "How's Engineering hiring velocity?"
+      expected_agent: capacity_planner
+      expected_filters:
+        - column: job__department_name
+          value: Engineering
+    - question: "And in Marketing?"
+      expected_agent: capacity_planner
+      expected_filters:
+        - column: job__department_name
+          value: Marketing
+
+- id: mt-pronoun-pipeline-period-001
+  category: multi_turn
+  difficulty: medium
+  question: "What was our hire rate last quarter?"
+  turns:
+    - question: "What was our hire rate last quarter?"
+    - question: "And year-over-year?"
+
+- id: mt-pronoun-stage-next-001
+  category: multi_turn
+  difficulty: medium
+  question: "Which stage takes the longest?"
+  turns:
+    - question: "Which stage takes the longest?"
+      expected_agent: pipeline_analyst
+    - question: "What about the second longest?"
+      expected_agent: pipeline_analyst
+
+# --- Multi-specialist handoff within a conversation ---
+
+- id: mt-handoff-bottleneck-fix-001
+  category: multi_turn
+  difficulty: hard
+  question: "Find the bottleneck"
+  turns:
+    - question: "Find the bottleneck"
+      expected_agent: pipeline_analyst
+    - question: "What should I do about it? Do we need more recruiters?"
+      expected_agent: capacity_planner
+
+- id: mt-handoff-source-offer-001
+  category: multi_turn
+  difficulty: hard
+  question: "Which source has the highest decline rate?"
+  turns:
+    - question: "Which source has the highest decline rate?"
+      expected_agent: sourcing_strategist
+    - question: "Why are those candidates declining offers?"
+      expected_agent: offer_advisor
+
+# --- Context rejection: user resets the topic ---
+
+- id: mt-reset-topic-001
+  category: multi_turn
+  difficulty: hard
+  question: "Where are the pipeline bottlenecks for Engineering?"
+  turns:
+    - question: "Where are the pipeline bottlenecks for Engineering?"
+      expected_agent: pipeline_analyst
+      expected_filters:
+        - column: job__department_name
+          value: Engineering
+    - question: "Forget that — show me offer acceptance across the whole company"
+      expected_agent: offer_advisor
+      # The prior Engineering filter MUST NOT carry into this unrelated query.
+      # `eval_multi_turn` has no "filter is absent" check; the best we can do
+      # deterministically is `must_not_contain` on the response.
+      must_not_contain:
+        - "Engineering only"
+        - "filtered to Engineering"

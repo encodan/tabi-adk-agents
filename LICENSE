@@ -1,0 +1,16 @@
+TABI · ADK Recruitment Agents
+Copyright (c) 2026 TABI / Talent Pylon. All rights reserved.
+
+SOURCE-AVAILABLE — EVALUATION USE ONLY
+
+This repository is a curated extract of TABI's production agent layer, published
+solely to support evaluation in the Google for Startups AI Agents Challenge 2026.
+It is provided "as is", for reading and review.
+
+No license is granted to use, copy, modify, distribute, or create derivative
+works from this code for any purpose other than evaluating the submission,
+without the prior written permission of the copyright holder.
+
+Proprietary components of the TABI platform — including the MetricFlow semantic
+layer, the ATS ingestion pipeline, multi-tenant provisioning, and all production
+data — are intentionally excluded from this repository.

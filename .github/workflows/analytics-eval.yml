@@ -1,0 +1,133 @@
+# Adapted from the TABI monorepo CI (`.github/workflows/analytics-eval.yml`)
+# for this standalone public showcase repo (Google AI Agents Challenge,
+# Track 2). The monorepo gate also runs a *credentialed live-eval* job that
+# drives the real AgentSession pipeline against GCP (Cloud SQL + Vertex +
+# BigQuery via Workload Identity Federation) and scores it with the four ADK
+# metric evaluators. That pipeline and its private infrastructure are
+# proprietary and intentionally NOT vendored here, so this workflow keeps only
+# the fast, self-contained gate that runs on mock data and protects the eval
+# artifacts on every PR. The structure that shows the binding ADK-eval gate is
+# preserved in `evaluation/adk_bridge.py` + `tests/test_adk_eval.py`; the
+# `live-eval` job below documents how it is wired and is disabled in this repo.
+
+name: Analytics Evaluation
+
+# The fast PR gate for the agent eval safety net. Runs the pandas-free ADK-eval
+# wiring tests (schema-drift lock on the *.evalset.json files, the full
+# eval_config.json -> typed EvalMetric mapping with the pinned-judge fail-closed
+# guard, and the agent_error bucketing aggregation) plus the grounding-redaction
+# and safety-settings anti-drift gates. These import only the pandas-free ADK
+# models, so they run without GCP credentials or the google-adk[eval] extra.
+
+on:
+  pull_request:
+    paths:
+      - 'agents/**'
+      - 'core/**'
+      - 'tools/**'
+      - 'models/**'
+      - 'config/**'
+      - 'evaluation/**'
+      - 'tests/**'
+      - '.github/workflows/analytics-eval.yml'
+  push:
+    branches: [main]
+
+concurrency:
+  group: analytics-eval-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  fast-eval:
+    name: Fast eval (no LLM, mock data)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install dependencies
+        # The showcase is import-rooted at the repo top (flat layout, no
+        # installable package — conftest.py wires sys.path). Install the
+        # runtime + dev deps (google-adk, google-genai, structlog, pyyaml,
+        # pytest, pytest-asyncio). The pandas/vertexai `eval` extra is NOT
+        # needed for the fast wiring tests below.
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: ADK-eval wiring + schema-drift gate
+        # tests/test_adk_eval.py (fast, non-integration):
+        #   - evalset schema parses against the pinned ADK EvalSet model
+        #   - eval_config.json maps to the four typed metric criteria
+        #   - the pinned-judge override fail-closes
+        #   - errored (cap-hit/salvage) cases are bucketed, not failed
+        #   - _finalize_pass / advisory-metric gating logic
+        run: pytest tests/test_adk_eval.py -v -m "not integration"
+      - name: Grounding-redaction + safety-settings anti-drift gates
+        run: pytest tests/test_grounding_enforcement.py tests/test_safety_settings_pin.py -v
+
+  # ---------------------------------------------------------------------------
+  # Live ADK-scorer gate (DISABLED in this public repo)
+  #
+  # In the monorepo this job drives the REAL AgentSession pipeline for every
+  # *.evalset.json case and scores the non-errored cases with the four ADK
+  # metric evaluators (tool_trajectory_avg_score / final_response_match_v2 /
+  # hallucinations_v1 / safety_v1) via LocalEvalService.evaluate(), using the
+  # pinned EVAL_JUDGE_MODEL judge at temperature 0. It is BINDING: a
+  # groundedness/factuality regression fails the run — never lower a threshold
+  # to go green.
+  #
+  # It requires the proprietary pipeline (AgentSession / StorytellingService /
+  # the MetricFlow + BigQuery semantic layer) plus GCP credentials (Vertex AI
+  # for the LLM judge, a live tenant dataset) — none of which ship in this
+  # public showcase repo. The wiring is fully visible in evaluation/adk_bridge.py
+  # (load_eval_metrics, score_evalset, _finalize_pass). The job is kept here,
+  # guarded off, to document how the binding gate is constructed.
+  # ---------------------------------------------------------------------------
+  live-eval:
+    name: Live ADK-scorer eval (requires proprietary pipeline + GCP — disabled)
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      id-token: write  # workload identity federation (OIDC) for keyless GCP auth
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install dependencies (incl. google-adk[eval])
+        # The ADK metric scorers pull in pandas / vertexai via the eval extra.
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt "google-adk[eval]>=2.1.0"
+      # Authenticate to GCP via keyless Workload Identity Federation (no JSON
+      # key). The provider + least-privilege service account are supplied as
+      # repository variables in the deploying environment — placeholders here.
+      - name: Authenticate to GCP (keyless WIF)
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093  # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.EVAL_WIF_SERVICE_ACCOUNT }}
+      - name: ADK-scorer eval (binding gate)
+        # Drives the real pipeline and scores it. BINDING: a groundedness
+        # regression fails the run — fix the agent (instructions/tools), never
+        # the threshold. The served model + pinned judge are configured via
+        # environment variables in the deploying environment.
+        env:
+          GOOGLE_GENAI_USE_VERTEXAI: "true"
+          GOOGLE_CLOUD_LOCATION: global
+          GOOGLE_CLOUD_PROJECT: ${{ vars.GCP_PROJECT_ID }}
+        run: pytest tests/test_adk_eval.py -v -m integration

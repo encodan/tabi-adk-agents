@@ -1,0 +1,278 @@
+# Golden dataset: Route correctness examples
+# Tests that the semantic router selects the correct agent and sub-intent.
+# These questions are held out from any router few-shot/training utterances.
+
+# --- pipeline_analyst ---
+
+- id: route-pipeline-bottleneck-001
+  category: routing
+  difficulty: easy
+  question: "Where are our pipeline bottlenecks?"
+  expected_agent: pipeline_analyst
+  expected_sub_intent: bottleneck
+
+- id: route-pipeline-bottleneck-002
+  category: routing
+  difficulty: medium
+  question: "Why is Engineering hiring so slow?"
+  expected_agent: pipeline_analyst
+  expected_sub_intent: bottleneck
+
+- id: route-pipeline-bottleneck-003
+  category: routing
+  difficulty: hard
+  question: "We're losing candidates midway through — what's going on?"
+  expected_agent: pipeline_analyst
+  expected_sub_intent: stage_analysis
+
+- id: route-pipeline-stage-001
+  category: routing
+  difficulty: easy
+  question: "What's the conversion rate at each hiring stage?"
+  expected_agent: pipeline_analyst
+  expected_sub_intent: stage_analysis
+
+- id: route-pipeline-health-001
+  category: routing
+  difficulty: medium
+  question: "Give me a pipeline health check for the Sales team"
+  expected_agent: pipeline_analyst
+  expected_sub_intent: pipeline_health
+
+# --- general_analyst ---
+
+- id: route-general-overview-001
+  category: routing
+  difficulty: easy
+  question: "How many people did we hire this quarter?"
+  expected_agent: general_analyst
+  expected_sub_intent: overview
+
+- id: route-general-overview-002
+  category: routing
+  difficulty: medium
+  question: "What are our key recruitment KPIs right now?"
+  expected_agent: general_analyst
+  expected_sub_intent: overview
+
+- id: route-general-breakdown-001
+  category: routing
+  difficulty: easy
+  question: "Show me hires split by department"
+  expected_agent: general_analyst
+  expected_sub_intent: breakdown
+
+- id: route-general-breakdown-002
+  category: routing
+  difficulty: medium
+  question: "How does each team's application volume compare?"
+  expected_agent: general_analyst
+  expected_sub_intent: breakdown
+
+- id: route-general-trends-001
+  category: routing
+  difficulty: easy
+  question: "What's the hiring trend over the past 6 months?"
+  expected_agent: general_analyst
+  expected_sub_intent: trends
+
+# --- sourcing_strategist ---
+
+- id: route-sourcing-comparison-001
+  category: routing
+  difficulty: easy
+  question: "Compare our sourcing channels"
+  expected_agent: sourcing_strategist
+  expected_sub_intent: source_comparison
+
+- id: route-sourcing-comparison-002
+  category: routing
+  difficulty: medium
+  question: "Are employee referrals outperforming job boards?"
+  expected_agent: sourcing_strategist
+  expected_sub_intent: source_comparison
+
+- id: route-sourcing-quality-001
+  category: routing
+  difficulty: easy
+  question: "Which source gives us the highest quality candidates?"
+  expected_agent: sourcing_strategist
+  expected_sub_intent: source_quality
+
+- id: route-sourcing-quality-002
+  category: routing
+  difficulty: medium
+  question: "Where should we double down on recruiting spend?"
+  expected_agent: sourcing_strategist
+  expected_sub_intent: source_quality
+
+- id: route-sourcing-quality-003
+  category: routing
+  difficulty: hard
+  question: "Our cost per hire is too high — which channels should we cut?"
+  expected_agent: sourcing_strategist
+  expected_sub_intent: source_quality
+
+# --- offer_advisor ---
+
+- id: route-offer-acceptance-001
+  category: routing
+  difficulty: easy
+  question: "What's our offer acceptance rate?"
+  expected_agent: offer_advisor
+  expected_sub_intent: acceptance_analysis
+
+- id: route-offer-acceptance-002
+  category: routing
+  difficulty: medium
+  question: "How quickly are candidates responding to our offers?"
+  expected_agent: offer_advisor
+  expected_sub_intent: acceptance_analysis
+
+- id: route-offer-decline-001
+  category: routing
+  difficulty: easy
+  question: "Why are candidates declining our offers?"
+  expected_agent: offer_advisor
+  expected_sub_intent: decline_analysis
+
+- id: route-offer-decline-002
+  category: routing
+  difficulty: hard
+  question: "We keep getting ghosted after extending offers — what's happening?"
+  expected_agent: offer_advisor
+  expected_sub_intent: decline_analysis
+
+# --- Edge case: off-topic ---
+# Replaces a redundant offer_advisor example. Verifies we refuse queries
+# outside TABI's domain instead of force-routing to a specialist.
+
+- id: route-edge-off-topic-001
+  category: routing
+  difficulty: medium
+  question: "What's the weather in Denver today?"
+  # No expected_agent asserted — a refusal path that stays on the coordinator
+  # is correct. Response behaviour is checked in safety.yaml (must_contain:
+  # "cannot" / "not related to").
+  must_contain:
+    - "cannot"
+
+# --- interviewing_coach ---
+
+- id: route-interview-efficiency-001
+  category: routing
+  difficulty: easy
+  question: "How long does our interview process take end to end?"
+  expected_agent: interviewing_coach
+  expected_sub_intent: interview_efficiency
+
+- id: route-interview-efficiency-002
+  category: routing
+  difficulty: medium
+  question: "Are we taking too long to schedule interviews?"
+  expected_agent: interviewing_coach
+  expected_sub_intent: interview_efficiency
+
+- id: route-interview-stage-001
+  category: routing
+  difficulty: easy
+  question: "Which interview round takes the longest?"
+  expected_agent: interviewing_coach
+  expected_sub_intent: stage_optimization
+
+- id: route-interview-stage-002
+  category: routing
+  difficulty: medium
+  question: "How can we make technical screens faster?"
+  expected_agent: interviewing_coach
+  expected_sub_intent: stage_optimization
+
+# --- Edge case: negation ---
+# Replaces a redundant interview_efficiency example. Guards against the
+# classifier stripping negation and routing as if the query were positive.
+
+- id: route-edge-negation-001
+  category: routing
+  difficulty: hard
+  question: "Which sources are NOT performing well for us?"
+  expected_agent: sourcing_strategist
+  expected_sub_intent: source_quality
+
+# --- capacity_planner ---
+
+- id: route-capacity-velocity-001
+  category: routing
+  difficulty: easy
+  question: "What's our current hiring rate per month?"
+  expected_agent: capacity_planner
+  expected_sub_intent: velocity
+
+- id: route-capacity-forecast-001
+  category: routing
+  difficulty: easy
+  question: "Will we meet our Q3 hiring targets?"
+  expected_agent: capacity_planner
+  expected_sub_intent: forecast
+
+# --- Edge case: ambiguous routing ---
+# Replaces a redundant capacity_planner.forecast example. "Interview performance"
+# could be interviewing_coach (efficiency/stage_optimization) or pipeline_analyst
+# (stage-by-stage metrics). Either route is acceptable; we only assert the
+# router committed to a specialist rather than dropping to coordinator.
+
+- id: route-edge-ambiguous-001
+  category: routing
+  difficulty: hard
+  question: "Show me interview performance"
+  acceptable_agents:
+    - interviewing_coach
+    - pipeline_analyst
+  # Either specialist is a defensible route for this query — we assert only
+  # that the classifier commits to one of them rather than dropping to the
+  # coordinator. Verifies deterministic disambiguation.
+
+- id: route-capacity-coverage-001
+  category: routing
+  difficulty: easy
+  question: "Is our candidate pipeline deep enough for next quarter?"
+  expected_agent: capacity_planner
+  expected_sub_intent: coverage
+
+- id: route-capacity-coverage-002
+  category: routing
+  difficulty: medium
+  question: "Should we bring on additional recruiters?"
+  expected_agent: capacity_planner
+  expected_sub_intent: coverage
+
+# --- data_scientist ---
+
+- id: route-datascientist-001
+  category: routing
+  difficulty: easy
+  question: "Is this week's drop in applications statistically significant?"
+  expected_agent: data_scientist
+
+- id: route-datascientist-002
+  category: routing
+  difficulty: medium
+  question: "Run an A/B comparison between our two sourcing experiments"
+  expected_agent: data_scientist
+
+- id: route-datascientist-003
+  category: routing
+  difficulty: hard
+  question: "Are there hidden patterns in which candidates drop off?"
+  expected_agent: data_scientist
+
+- id: route-datascientist-004
+  category: routing
+  difficulty: medium
+  question: "What's the correlation between time-to-fill and offer acceptance?"
+  expected_agent: data_scientist
+
+- id: route-datascientist-005
+  category: routing
+  difficulty: medium
+  question: "Give me confidence intervals on our hiring forecast"
+  expected_agent: data_scientist

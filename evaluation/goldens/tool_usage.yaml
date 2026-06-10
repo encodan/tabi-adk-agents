@@ -1,0 +1,123 @@
+# Golden dataset: Tool usage correctness examples
+# Tests that agents call the correct tools with the right parameters.
+
+- id: tool-pipeline-bottleneck-001
+  category: tool_usage
+  difficulty: easy
+  question: "Where are our pipeline bottlenecks?"
+  expected_agent: pipeline_analyst
+  expected_sub_intent: bottleneck
+  expected_tools: [query_multiple_recruitment_metrics]
+  expected_metrics: [avg_days_in_stage, total_applications]
+
+- id: tool-pipeline-stage-001
+  category: tool_usage
+  difficulty: easy
+  question: "Show me conversion rates by stage"
+  expected_agent: pipeline_analyst
+  expected_sub_intent: stage_analysis
+  expected_tools: [query_multiple_recruitment_metrics]
+  expected_metrics: [stage_pass_through_rate]
+
+- id: tool-general-overview-001
+  category: tool_usage
+  difficulty: easy
+  question: "What are our top-level hiring numbers?"
+  expected_agent: general_analyst
+  expected_sub_intent: overview
+  expected_tools: [query_multiple_recruitment_metrics]
+  expected_metrics: [total_applications, hired_count, hire_rate]
+
+- id: tool-general-breakdown-001
+  category: tool_usage
+  difficulty: medium
+  question: "Break down applications by department"
+  expected_agent: general_analyst
+  expected_sub_intent: breakdown
+  expected_tools: [query_multiple_recruitment_metrics]
+  expected_metrics: [total_applications]
+
+- id: tool-sourcing-comparison-001
+  category: tool_usage
+  difficulty: easy
+  question: "Which sourcing channels are performing best?"
+  expected_agent: sourcing_strategist
+  expected_sub_intent: source_comparison
+  expected_tools: [query_multiple_recruitment_metrics]
+
+- id: tool-offer-acceptance-001
+  category: tool_usage
+  difficulty: easy
+  question: "How are our offers performing?"
+  expected_agent: offer_advisor
+  expected_sub_intent: acceptance_analysis
+  expected_tools: [query_multiple_recruitment_metrics]
+  expected_metrics: [offer_acceptance_rate, total_offers]
+
+- id: tool-interview-efficiency-001
+  category: tool_usage
+  difficulty: medium
+  question: "Are we interviewing efficiently?"
+  expected_agent: interviewing_coach
+  expected_sub_intent: interview_efficiency
+  expected_tools: [query_multiple_recruitment_metrics]
+
+- id: tool-capacity-velocity-001
+  category: tool_usage
+  difficulty: easy
+  question: "What's our monthly hiring throughput?"
+  expected_agent: capacity_planner
+  expected_sub_intent: velocity
+  expected_tools: [query_multiple_recruitment_metrics]
+
+- id: tool-negative-no-query-001
+  category: tool_usage
+  difficulty: medium
+  question: "What is TABI?"
+  forbidden_tools: [query_multiple_recruitment_metrics, query_recruitment_metric]
+
+- id: tool-negative-no-query-002
+  category: tool_usage
+  difficulty: medium
+  question: "How do I use this platform?"
+  forbidden_tools: [query_multiple_recruitment_metrics, query_recruitment_metric]
+
+- id: tool-capacity-forecast-001
+  category: tool_usage
+  difficulty: medium
+  question: "Will we hit our hiring goals this quarter?"
+  expected_agent: capacity_planner
+  expected_sub_intent: forecast
+  expected_tools: [query_multiple_recruitment_metrics]
+
+- id: tool-offer-decline-001
+  category: tool_usage
+  difficulty: medium
+  question: "Why are people turning down our offers?"
+  expected_agent: offer_advisor
+  expected_sub_intent: decline_analysis
+  expected_tools: [query_multiple_recruitment_metrics]
+
+- id: tool-sourcing-quality-001
+  category: tool_usage
+  difficulty: medium
+  question: "Which sources have the best hire rates?"
+  expected_agent: sourcing_strategist
+  expected_sub_intent: source_quality
+  expected_tools: [query_multiple_recruitment_metrics]
+
+- id: tool-interview-stage-opt-001
+  category: tool_usage
+  difficulty: medium
+  question: "Which interview round is slowest?"
+  expected_agent: interviewing_coach
+  expected_sub_intent: stage_optimization
+  expected_tools: [query_multiple_recruitment_metrics]
+
+- id: tool-pipeline-health-001
+  category: tool_usage
+  difficulty: medium
+  question: "Overall pipeline health report"
+  expected_agent: pipeline_analyst
+  expected_sub_intent: pipeline_health
+  expected_tools: [query_multiple_recruitment_metrics]

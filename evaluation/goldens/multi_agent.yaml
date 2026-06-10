@@ -1,0 +1,62 @@
+# Golden dataset: Multi-agent routing examples
+# Tests that compound queries correctly trigger multi-agent orchestration.
+
+- id: route-multi-pipeline-capacity-001
+  category: routing
+  difficulty: hard
+  question: "How does our sourcing strategy affect pipeline speed?"
+  expected_agents: [sourcing_strategist, pipeline_analyst]
+
+- id: route-multi-pipeline-capacity-002
+  category: routing
+  difficulty: hard
+  question: "What are our bottlenecks and will we still hit our hiring goals?"
+  expected_agents: [pipeline_analyst, capacity_planner]
+
+- id: route-multi-sourcing-offer-001
+  category: routing
+  difficulty: hard
+  question: "Which sourcing channels produce candidates that accept offers?"
+  expected_agents: [sourcing_strategist, offer_advisor]
+
+- id: route-multi-interview-pipeline-001
+  category: routing
+  difficulty: hard
+  question: "Are slow interviews causing delays in our overall pipeline?"
+  expected_agents: [interviewing_coach, pipeline_analyst]
+
+- id: route-multi-offer-capacity-001
+  category: routing
+  difficulty: hard
+  question: "How does our offer decline rate impact our ability to hit targets?"
+  expected_agents: [offer_advisor, capacity_planner]
+
+- id: route-multi-capacity-sourcing-001
+  category: routing
+  difficulty: hard
+  question: "We're behind on hiring goals — which sources should we ramp up?"
+  expected_agents: [capacity_planner, sourcing_strategist]
+
+- id: route-multi-pipeline-offer-001
+  category: routing
+  difficulty: hard
+  question: "Where are candidates dropping off and how are offers performing?"
+  expected_agents: [pipeline_analyst, offer_advisor]
+
+- id: route-multi-ds-capacity-001
+  category: routing
+  difficulty: hard
+  question: "What's the statistical probability we'll meet our Q4 hiring target?"
+  expected_agents: [data_scientist, capacity_planner]
+
+- id: route-multi-ds-pipeline-001
+  category: routing
+  difficulty: hard
+  question: "Are the delays in our technical interview stage statistically abnormal?"
+  expected_agents: [data_scientist, pipeline_analyst]
+
+- id: route-multi-ds-sourcing-001
+  category: routing
+  difficulty: hard
+  question: "Is the difference between LinkedIn and referral performance statistically significant?"
+  expected_agents: [data_scientist, sourcing_strategist]
